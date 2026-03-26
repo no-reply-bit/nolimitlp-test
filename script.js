@@ -87,7 +87,7 @@
       const email = document.getElementById("email")?.value.trim() || "";
       const tel = document.getElementById("tel")?.value.trim() || "";
 
-      const gasUrl = "https://script.google.com/macros/s/AKfycbwsMbpgYQY46HkChuSpeXSUz7W70xBl4quilgtx_SGejkMNSZmnS8Zts6a8fITtbKK66A/exec";
+      const gasUrl = "https://script.google.com/macros/s/AKfycbx9o_vWO0SVQMV3mYH2YbnOaSQhD5AoxSrSaAzJnDFhQCphvEbyXxpuoTo6w0MW8yPByw/exec";
 
       const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
       const originalButtonText = submitButton ? submitButton.textContent : "";
