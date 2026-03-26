@@ -87,7 +87,7 @@
       const email = document.getElementById("email")?.value.trim() || "";
       const tel = document.getElementById("tel")?.value.trim() || "";
 
-      const webhookUrl = "https://hooks.slack.com/services/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";
+      const webhookUrl = "https://script.google.com/macros/s/AKfycbwsMbpgYQY46HkChuSpeXSUz7W70xBl4quilgtx_SGejkMNSZmnS8Zts6a8fITtbKK66A/exec";
 
       const message =
 `【LPお問い合わせ】
