@@ -3,7 +3,7 @@
    - Smooth Scroll
    - Mobile Nav Close
    - FAQ Accordion
-   - Contact Form Validation + Slack Webhook
+   - Contact Form Validation + GAS relay
    - Fade-up animation
 ========================================= */
 
@@ -56,7 +56,7 @@
   });
 
   /* -----------------------------
-     Contact form validation + Slack send
+     Contact form validation + GAS send
   ----------------------------- */
   const form = document.querySelector("#contact-form");
 
@@ -87,17 +87,7 @@
       const email = document.getElementById("email")?.value.trim() || "";
       const tel = document.getElementById("tel")?.value.trim() || "";
 
-      const webhookUrl = "https://script.google.com/macros/s/AKfycbwsMbpgYQY46HkChuSpeXSUz7W70xBl4quilgtx_SGejkMNSZmnS8Zts6a8fITtbKK66A/exec";
-
-      const message =
-`【LPお問い合わせ】
-会社名: ${company}
-お名前: ${name}
-メール: ${email}
-電話番号: ${tel || "未入力"}
-
-お問い合わせ内容:
-${inquiry}`;
+      const gasUrl = "https://script.google.com/macros/s/AKfycbwsMbpgYQY46HkChuSpeXSUz7W70xBl4quilgtx_SGejkMNSZmnS8Zts6a8fITtbKK66A/exec";
 
       const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
       const originalButtonText = submitButton ? submitButton.textContent : "";
@@ -108,18 +98,24 @@ ${inquiry}`;
           submitButton.textContent = "送信中...";
         }
 
-        const response = await fetch(webhookUrl, {
+        const response = await fetch(gasUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            text: message
+            inquiry,
+            company,
+            name,
+            email,
+            tel
           })
         });
 
-        if (!response.ok) {
-          throw new Error("Slackへの送信に失敗しました。");
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+          throw new Error(result.message || "GASへの送信に失敗しました。");
         }
 
         alert("お問い合わせを送信しました。");
@@ -130,7 +126,7 @@ ${inquiry}`;
         });
       } catch (error) {
         console.error(error);
-        alert("送信に失敗しました。Webhook URLまたはブラウザ制限をご確認ください。");
+        alert("送信に失敗しました。GASのデプロイ設定またはURLをご確認ください。");
       } finally {
         if (submitButton) {
           submitButton.disabled = false;
