@@ -3,7 +3,7 @@
    - Smooth Scroll
    - Mobile Nav Close
    - FAQ Accordion
-   - Contact Form Validation (Formspree)
+   - Contact Form Validation + Slack Webhook
    - Fade-up animation
 ========================================= */
 
@@ -56,12 +56,14 @@
   });
 
   /* -----------------------------
-     Contact form validation (Formspree)
+     Contact form validation + Slack send
   ----------------------------- */
   const form = document.querySelector("#contact-form");
 
   if (form) {
-    form.addEventListener("submit", e => {
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+
       let hasError = false;
 
       const requiredFields = form.querySelectorAll("[required]");
@@ -75,15 +77,65 @@
       });
 
       if (hasError) {
-        e.preventDefault();
         alert("必須項目が未入力です。内容をご確認ください。");
         return;
       }
 
+      const inquiry = document.getElementById("inquiry")?.value.trim() || "";
+      const company = document.getElementById("company")?.value.trim() || "";
+      const name = document.getElementById("name")?.value.trim() || "";
+      const email = document.getElementById("email")?.value.trim() || "";
+      const tel = document.getElementById("tel")?.value.trim() || "";
+
+      const webhookUrl = "https://hooks.slack.com/services/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";
+
+      const message =
+`【LPお問い合わせ】
+会社名: ${company}
+お名前: ${name}
+メール: ${email}
+電話番号: ${tel || "未入力"}
+
+お問い合わせ内容:
+${inquiry}`;
+
       const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = "送信中...";
+      const originalButtonText = submitButton ? submitButton.textContent : "";
+
+      try {
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = "送信中...";
+        }
+
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text: message
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("Slackへの送信に失敗しました。");
+        }
+
+        alert("お問い合わせを送信しました。");
+        form.reset();
+
+        form.querySelectorAll(".invalid").forEach(field => {
+          field.classList.remove("invalid");
+        });
+      } catch (error) {
+        console.error(error);
+        alert("送信に失敗しました。Webhook URLまたはブラウザ制限をご確認ください。");
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalButtonText || "送信する";
+        }
       }
     });
 
