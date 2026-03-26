@@ -101,7 +101,7 @@
         const response = await fetch(gasUrl, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "text/plain;charset=utf-8"
           },
           body: JSON.stringify({
             inquiry,
@@ -112,7 +112,15 @@
           })
         });
 
-        const result = await response.json();
+        const rawText = await response.text();
+        console.log("GAS raw response:", rawText);
+
+        let result;
+        try {
+          result = JSON.parse(rawText);
+        } catch (parseError) {
+          throw new Error("GASの返却がJSONではありません: " + rawText);
+        }
 
         if (!response.ok || !result.ok) {
           throw new Error(result.message || "GASへの送信に失敗しました。");
@@ -125,8 +133,8 @@
           field.classList.remove("invalid");
         });
       } catch (error) {
-        console.error(error);
-        alert("送信に失敗しました。GASのデプロイ設定またはURLをご確認ください。");
+        console.error("送信エラー:", error);
+        alert("送信に失敗しました: " + error.message);
       } finally {
         if (submitButton) {
           submitButton.disabled = false;
